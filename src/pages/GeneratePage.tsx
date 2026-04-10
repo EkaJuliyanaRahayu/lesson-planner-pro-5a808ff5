@@ -142,9 +142,22 @@ export default function GeneratePage() {
               <p className="text-sm text-muted-foreground">{stageLabel.title}</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={downloadStage}>
-            <Download className="h-4 w-4 mr-1" /> Unduh {currentStageKey.toUpperCase()}
-          </Button>
+          <div className="flex items-center gap-2">
+            {STAGES.map((s) => {
+              const hasData = doc?.[s as keyof Pick<DocumentRecord, "cp" | "tp" | "atp" | "rpp">]?.rows.length > 0;
+              return (
+                <Button
+                  key={s}
+                  variant={s === currentStageKey ? "default" : "outline"}
+                  size="sm"
+                  disabled={!hasData}
+                  onClick={() => { if (doc) { generateStagePDF(doc, s); toast.success(`${STAGE_LABELS[s].title} berhasil diunduh`); } }}
+                >
+                  <Download className="h-4 w-4 mr-1" /> {s.toUpperCase()}
+                </Button>
+              );
+            })}
+          </div>
         </div>
       </header>
 
