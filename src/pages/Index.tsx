@@ -157,25 +157,6 @@ function DocCard({ doc, onDelete }: { doc: DocumentRecord; onDelete: (id: string
           </div>
         )}
 
-        {/* Download buttons */}
-        <div className="grid grid-cols-2 gap-1.5">
-          {STAGES.map((stage) => {
-            const hasData = doc[stage].rows.length > 0;
-            return (
-              <Button
-                key={stage}
-                variant="outline"
-                size="sm"
-                disabled={!hasData}
-                onClick={() => generateStagePDF(doc, stage)}
-                className="text-xs h-7"
-              >
-                <Download className="h-3 w-3 mr-1" />
-                {stage.toUpperCase()}
-              </Button>
-            );
-          })}
-        </div>
 
         <Button
           variant="default"
