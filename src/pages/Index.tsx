@@ -112,33 +112,49 @@ function DocCard({ doc, onDelete }: { doc: DocumentRecord; onDelete: (id: string
           {showPreview ? "Sembunyikan Isi" : "Lihat Isi Dokumen"}
         </Button>
 
-        {/* Real-time preview */}
+        {/* Full document preview - all stages */}
         {showPreview && (
-          <Tabs defaultValue="cp" className="w-full">
-            <TabsList className="w-full grid grid-cols-4 h-8">
-              {STAGES.map((stage) => (
-                <TabsTrigger key={stage} value={stage} className="text-xs py-1">
-                  {stage.toUpperCase()}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {STAGES.map((stage) => (
-              <TabsContent key={stage} value={stage} className="mt-2">
-                <StagePreview doc={doc} stage={stage} />
-                {doc[stage].rows.length > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-2 text-xs h-7"
-                    onClick={() => generateStagePDF(doc, stage)}
-                  >
-                    <Download className="h-3 w-3 mr-1" />
-                    Unduh {stage.toUpperCase()}
-                  </Button>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
+          <div className="space-y-4 bg-card border border-border rounded-lg p-4">
+            {/* Document header */}
+            <div className="text-center border-b border-border pb-3">
+              <h3 className="text-sm font-bold text-foreground">Laporan Pembelajaran</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                {doc.mataPelajaran} — Kelas {doc.kelas}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(doc.createdAt).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+
+            {/* All stages rendered sequentially */}
+            {STAGES.map((stage) => {
+              const label = STAGE_LABELS[stage];
+              const hasData = doc[stage].rows.length > 0;
+              return (
+                <div key={stage} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-primary">{label.title}</h4>
+                    {hasData && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs px-2"
+                        onClick={() => generateStagePDF(doc, stage)}
+                      >
+                        <Download className="h-3 w-3 mr-1" />
+                        Unduh
+                      </Button>
+                    )}
+                  </div>
+                  <StagePreview doc={doc} stage={stage} />
+                </div>
+              );
+            })}
+          </div>
         )}
 
         {/* Download buttons */}
