@@ -193,7 +193,7 @@ export default function GeneratePage() {
               </>
             ) : (
               <>
-                <Save className="h-4 w-4 mr-1" /> Selesai & Unduh Laporan
+                <Save className="h-4 w-4 mr-1" /> Selesai
               </>
             )}
           </Button>
