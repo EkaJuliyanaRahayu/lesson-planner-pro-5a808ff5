@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FilePlus, FileText, Trash2, Download, BookOpen, ChevronDown } from "lucide-react";
+import { FilePlus, FileText, Trash2, Download, BookOpen, ChevronDown, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDocuments, deleteDocument } from "@/lib/storage";
@@ -12,6 +12,168 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+function StagePreview({ doc, stage }: { doc: DocumentRecord; stage: typeof STAGES[number] }) {
+  const label = STAGE_LABELS[stage];
+  const data = doc[stage];
+
+  if (data.rows.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground italic py-4 text-center">Belum ada data</p>
+    );
+  }
+
+  return (
+    <div className="border border-border rounded-md overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead className="w-[35%] text-xs font-semibold">{label.col1}</TableHead>
+            <TableHead className="text-xs font-semibold">{label.col2}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.rows.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell className="text-xs py-2">{row.col1}</TableCell>
+              <TableCell className="text-xs py-2">{row.col2}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function DocCard({ doc, onDelete }: { doc: DocumentRecord; onDelete: (id: string) => void }) {
+  const [showPreview, setShowPreview] = useState(false);
+
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm flex items-center justify-between">
+          <span>{doc.mataPelajaran}</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded">
+              Kelas {doc.kelas}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(doc.id)}
+              className="text-destructive hover:text-destructive h-7 w-7 p-0"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          {new Date(doc.createdAt).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* Stage badges */}
+        <div className="flex flex-wrap gap-1.5">
+          {STAGES.map((stage) => (
+            <span
+              key={stage}
+              className={`text-xs px-2 py-1 rounded font-medium ${
+                doc.completedStages.includes(stage)
+                  ? "bg-step-completed/15 text-step-completed"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {stage.toUpperCase()}
+            </span>
+          ))}
+        </div>
+
+        {/* Preview toggle */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full text-xs"
+          onClick={() => setShowPreview(!showPreview)}
+        >
+          <Eye className="h-3 w-3 mr-1.5" />
+          {showPreview ? "Sembunyikan Isi" : "Lihat Isi Dokumen"}
+        </Button>
+
+        {/* Real-time preview */}
+        {showPreview && (
+          <Tabs defaultValue="cp" className="w-full">
+            <TabsList className="w-full grid grid-cols-4 h-8">
+              {STAGES.map((stage) => (
+                <TabsTrigger key={stage} value={stage} className="text-xs py-1">
+                  {stage.toUpperCase()}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {STAGES.map((stage) => (
+              <TabsContent key={stage} value={stage} className="mt-2">
+                <StagePreview doc={doc} stage={stage} />
+                {doc[stage].rows.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-2 text-xs h-7"
+                    onClick={() => generateStagePDF(doc, stage)}
+                  >
+                    <Download className="h-3 w-3 mr-1" />
+                    Unduh {stage.toUpperCase()}
+                  </Button>
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
+        )}
+
+        {/* Download buttons */}
+        <div className="grid grid-cols-2 gap-1.5">
+          {STAGES.map((stage) => {
+            const hasData = doc[stage].rows.length > 0;
+            return (
+              <Button
+                key={stage}
+                variant="outline"
+                size="sm"
+                disabled={!hasData}
+                onClick={() => generateStagePDF(doc, stage)}
+                className="text-xs h-7"
+              >
+                <Download className="h-3 w-3 mr-1" />
+                {stage.toUpperCase()}
+              </Button>
+            );
+          })}
+        </div>
+
+        <Button
+          variant="default"
+          size="sm"
+          className="w-full"
+          onClick={() => generateFullPDF(doc)}
+        >
+          <Download className="h-3.5 w-3.5 mr-1.5" />
+          Unduh Semua
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Index() {
   const navigate = useNavigate();
@@ -23,7 +185,6 @@ export default function Index() {
     toast.success("Dokumen dihapus");
   };
 
-  // Group documents by kelas, then by mataPelajaran
   const grouped = useMemo(() => {
     const map: Record<string, Record<string, DocumentRecord[]>> = {};
     for (const doc of docs) {
@@ -84,77 +245,9 @@ export default function Index() {
                   {Object.keys(grouped[kelas]).sort().map((mapel) => (
                     <div key={mapel} className="space-y-3">
                       <h4 className="text-sm font-semibold text-primary">{mapel}</h4>
-                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-4 md:grid-cols-2">
                         {grouped[kelas][mapel].map((doc) => (
-                          <Card key={doc.id} className="hover:shadow-md transition-shadow">
-                            <CardHeader className="pb-2">
-                              <CardTitle className="text-sm flex items-center justify-between">
-                                <span className="text-muted-foreground">
-                                  {new Date(doc.createdAt).toLocaleDateString("id-ID", {
-                                    day: "numeric",
-                                    month: "short",
-                                    year: "numeric",
-                                  })}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDelete(doc.id)}
-                                  className="text-destructive hover:text-destructive h-7 w-7 p-0"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                              {/* Stage badges */}
-                              <div className="flex flex-wrap gap-1.5">
-                                {STAGES.map((stage) => (
-                                  <span
-                                    key={stage}
-                                    className={`text-xs px-2 py-1 rounded font-medium ${
-                                      doc.completedStages.includes(stage)
-                                        ? "bg-step-completed/15 text-step-completed"
-                                        : "bg-muted text-muted-foreground"
-                                    }`}
-                                  >
-                                    {stage.toUpperCase()}
-                                  </span>
-                                ))}
-                              </div>
-
-                              {/* Individual stage downloads */}
-                              <div className="grid grid-cols-2 gap-1.5">
-                                {STAGES.map((stage) => {
-                                  const hasData = doc[stage].rows.length > 0;
-                                  return (
-                                    <Button
-                                      key={stage}
-                                      variant="outline"
-                                      size="sm"
-                                      disabled={!hasData}
-                                      onClick={() => generateStagePDF(doc, stage)}
-                                      className="text-xs h-7"
-                                    >
-                                      <Download className="h-3 w-3 mr-1" />
-                                      {stage.toUpperCase()}
-                                    </Button>
-                                  );
-                                })}
-                              </div>
-
-                              {/* Full download */}
-                              <Button
-                                variant="default"
-                                size="sm"
-                                className="w-full"
-                                onClick={() => generateFullPDF(doc)}
-                              >
-                                <Download className="h-3.5 w-3.5 mr-1.5" />
-                                Unduh Semua
-                              </Button>
-                            </CardContent>
-                          </Card>
+                          <DocCard key={doc.id} doc={doc} onDelete={handleDelete} />
                         ))}
                       </div>
                     </div>
