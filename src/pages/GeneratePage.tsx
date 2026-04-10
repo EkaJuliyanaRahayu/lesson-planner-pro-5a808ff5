@@ -75,8 +75,7 @@ export default function GeneratePage() {
       setCurrentStage(currentStage + 1);
       toast.success(`${stageLabel.title} tersimpan`);
     } else {
-      generateFullPDF(updated);
-      toast.success("Semua tahap selesai! Laporan lengkap diunduh.");
+      toast.success("Semua tahap selesai!");
     }
   };
 
@@ -193,7 +192,7 @@ export default function GeneratePage() {
               </>
             ) : (
               <>
-                <Save className="h-4 w-4 mr-1" /> Selesai & Unduh Laporan
+                <Save className="h-4 w-4 mr-1" /> Selesai
               </>
             )}
           </Button>
