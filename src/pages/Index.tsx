@@ -154,6 +154,7 @@ function DocCard({ doc, onDelete }: { doc: DocumentRecord; onDelete: (id: string
                 </div>
               );
             })}
+          </div>
         )}
 
         {/* Download buttons */}
