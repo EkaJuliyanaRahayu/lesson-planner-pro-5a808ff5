@@ -84,7 +84,7 @@ function DocCard({ doc, onDelete }: { doc: DocumentRecord; onDelete: (id: string
           })}
         </p>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2 pt-0">
         {/* Stage badges */}
         <div className="flex flex-wrap gap-1.5">
           {STAGES.map((stage) => (
