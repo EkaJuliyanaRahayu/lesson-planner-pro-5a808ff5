@@ -75,8 +75,7 @@ export default function GeneratePage() {
       setCurrentStage(currentStage + 1);
       toast.success(`${stageLabel.title} tersimpan`);
     } else {
-      generateFullPDF(updated);
-      toast.success("Semua tahap selesai! Laporan lengkap diunduh.");
+      toast.success("Semua tahap selesai!");
     }
   };
 
