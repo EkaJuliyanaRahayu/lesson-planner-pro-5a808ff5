@@ -76,6 +76,7 @@ export default function GeneratePage() {
       toast.success(`${stageLabel.title} tersimpan`);
     } else {
       toast.success("Semua tahap selesai!");
+      navigate("/");
     }
   };
 
