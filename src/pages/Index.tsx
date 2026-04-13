@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { FilePlus, FileText, Trash2, Download, BookOpen, ChevronDown, Eye } from "lucide-react";
+import { FilePlus, FileText, Trash2, Download, BookOpen, ChevronDown, Eye, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDocuments, deleteDocument } from "@/lib/storage";
 import { generateFullPDF, generateStagePDF } from "@/lib/pdf";
 import { STAGE_LABELS, STAGES, DocumentRecord } from "@/lib/types";
 import { useState, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   Collapsible,
@@ -175,6 +177,7 @@ function DocCard({ doc, onDelete }: { doc: DocumentRecord; onDelete: (id: string
 export default function Index() {
   const navigate = useNavigate();
   const [docs, setDocs] = useState(getDocuments());
+  const [search, setSearch] = useState("");
 
   const handleDelete = (id: string) => {
     deleteDocument(id);
@@ -182,15 +185,30 @@ export default function Index() {
     toast.success("Dokumen dihapus");
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  const filteredDocs = useMemo(() => {
+    if (!search.trim()) return docs;
+    const q = search.toLowerCase();
+    return docs.filter(
+      (d) =>
+        d.mataPelajaran.toLowerCase().includes(q) ||
+        d.kelas.toLowerCase().includes(q)
+    );
+  }, [docs, search]);
+
   const grouped = useMemo(() => {
     const map: Record<string, Record<string, DocumentRecord[]>> = {};
-    for (const doc of docs) {
+    for (const doc of filteredDocs) {
       if (!map[doc.kelas]) map[doc.kelas] = {};
       if (!map[doc.kelas][doc.mataPelajaran]) map[doc.kelas][doc.mataPelajaran] = [];
       map[doc.kelas][doc.mataPelajaran].push(doc);
     }
     return map;
-  }, [docs]);
+  }, [filteredDocs]);
 
   const sortedKelas = Object.keys(grouped).sort();
 
@@ -207,14 +225,36 @@ export default function Index() {
               <p className="text-sm text-muted-foreground">Generate CP, TP, ATP & RPP</p>
             </div>
           </div>
-          <Button onClick={() => navigate("/generate")}>
-            <FilePlus className="h-4 w-4 mr-2" /> Generate Baru
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => navigate("/generate")}>
+              <FilePlus className="h-4 w-4 mr-2" /> Generate Baru
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleLogout} title="Keluar">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {docs.length === 0 ? (
+        {/* Search */}
+        <div className="relative mb-6 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Cari mata pelajaran atau kelas..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {filteredDocs.length === 0 && docs.length > 0 ? (
+          <div className="text-center py-20">
+            <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">Tidak Ditemukan</h2>
+            <p className="text-muted-foreground">Tidak ada dokumen yang cocok dengan "{search}"</p>
+          </div>
+        ) : docs.length === 0 ? (
           <div className="text-center py-20">
             <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-foreground mb-2">Belum Ada Dokumen</h2>
@@ -226,7 +266,7 @@ export default function Index() {
         ) : (
           <div className="space-y-6">
             <h2 className="text-lg font-semibold text-foreground">
-              Dokumen Tersimpan ({docs.length})
+              Dokumen Tersimpan ({filteredDocs.length})
             </h2>
 
             {sortedKelas.map((kelas) => (
