@@ -177,6 +177,7 @@ function DocCard({ doc, onDelete }: { doc: DocumentRecord; onDelete: (id: string
 export default function Index() {
   const navigate = useNavigate();
   const [docs, setDocs] = useState(getDocuments());
+  const [search, setSearch] = useState("");
 
   const handleDelete = (id: string) => {
     deleteDocument(id);
@@ -184,15 +185,30 @@ export default function Index() {
     toast.success("Dokumen dihapus");
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  const filteredDocs = useMemo(() => {
+    if (!search.trim()) return docs;
+    const q = search.toLowerCase();
+    return docs.filter(
+      (d) =>
+        d.mataPelajaran.toLowerCase().includes(q) ||
+        d.kelas.toLowerCase().includes(q)
+    );
+  }, [docs, search]);
+
   const grouped = useMemo(() => {
     const map: Record<string, Record<string, DocumentRecord[]>> = {};
-    for (const doc of docs) {
+    for (const doc of filteredDocs) {
       if (!map[doc.kelas]) map[doc.kelas] = {};
       if (!map[doc.kelas][doc.mataPelajaran]) map[doc.kelas][doc.mataPelajaran] = [];
       map[doc.kelas][doc.mataPelajaran].push(doc);
     }
     return map;
-  }, [docs]);
+  }, [filteredDocs]);
 
   const sortedKelas = Object.keys(grouped).sort();
 
