@@ -225,14 +225,36 @@ export default function Index() {
               <p className="text-sm text-muted-foreground">Generate CP, TP, ATP & RPP</p>
             </div>
           </div>
-          <Button onClick={() => navigate("/generate")}>
-            <FilePlus className="h-4 w-4 mr-2" /> Generate Baru
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => navigate("/generate")}>
+              <FilePlus className="h-4 w-4 mr-2" /> Generate Baru
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleLogout} title="Keluar">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {docs.length === 0 ? (
+        {/* Search */}
+        <div className="relative mb-6 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Cari mata pelajaran atau kelas..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {filteredDocs.length === 0 && docs.length > 0 ? (
+          <div className="text-center py-20">
+            <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">Tidak Ditemukan</h2>
+            <p className="text-muted-foreground">Tidak ada dokumen yang cocok dengan "{search}"</p>
+          </div>
+        ) : docs.length === 0 ? (
           <div className="text-center py-20">
             <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-foreground mb-2">Belum Ada Dokumen</h2>
