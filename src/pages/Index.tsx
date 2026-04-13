@@ -238,17 +238,14 @@ export default function Index() {
                     ({Object.keys(grouped[kelas]).length} mata pelajaran)
                   </span>
                 </CollapsibleTrigger>
-                <CollapsibleContent className="mt-3 space-y-4 pl-7">
-                  {Object.keys(grouped[kelas]).sort().map((mapel) => (
-                    <div key={mapel} className="space-y-3">
-                      <h4 className="text-sm font-semibold text-primary">{mapel}</h4>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        {grouped[kelas][mapel].map((doc) => (
-                          <DocCard key={doc.id} doc={doc} onDelete={handleDelete} />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <CollapsibleContent className="mt-3 pl-7">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {Object.keys(grouped[kelas]).sort().flatMap((mapel) =>
+                      grouped[kelas][mapel].map((doc) => (
+                        <DocCard key={doc.id} doc={doc} onDelete={handleDelete} />
+                      ))
+                    )}
+                  </div>
                 </CollapsibleContent>
               </Collapsible>
             ))}
