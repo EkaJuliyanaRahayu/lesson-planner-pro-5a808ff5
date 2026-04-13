@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FilePlus, FileText, Trash2, Download, BookOpen, ChevronDown, Eye, Search, LogOut } from "lucide-react";
+import { FilePlus, FileText, Trash2, Download, BookOpen, ChevronDown, Eye, Search, LogOut, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -228,6 +228,9 @@ export default function Index() {
           <div className="flex items-center gap-2">
             <Button onClick={() => navigate("/generate")}>
               <FilePlus className="h-4 w-4 mr-2" /> Generate Baru
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/profile")} title="Profil">
+              <UserCircle className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" onClick={handleLogout} title="Keluar">
               <LogOut className="h-4 w-4" />
