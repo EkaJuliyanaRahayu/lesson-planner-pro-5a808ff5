@@ -266,7 +266,7 @@ export default function Index() {
         ) : (
           <div className="space-y-6">
             <h2 className="text-lg font-semibold text-foreground">
-              Dokumen Tersimpan ({docs.length})
+              Dokumen Tersimpan ({filteredDocs.length})
             </h2>
 
             {sortedKelas.map((kelas) => (
