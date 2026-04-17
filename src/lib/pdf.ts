@@ -2,11 +2,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { DocumentRecord, STAGE_LABELS, STAGES } from "./types";
 
-export function generateStagePDF(
-  doc: DocumentRecord,
-  stage: string
-) {
-  const pdf = new jsPDF();
+export function generateStagePDF(doc: DocumentRecord, stage: string) {
+  const orientation = STAGE_LABELS[stage].columns.length > 4 ? "landscape" : "portrait";
+  const pdf = new jsPDF({ orientation });
   const label = STAGE_LABELS[stage];
 
   pdf.setFontSize(16);
@@ -21,8 +19,10 @@ export function generateStagePDF(
 
   autoTable(pdf, {
     startY: 52,
-    head: [[label.col1, label.col2, label.col3, label.col4]],
-    body: stageData.rows.map((r) => [r.col1, r.col2, r.col3, r.col4]),
+    head: [label.columns],
+    body: stageData.rows.map((r) =>
+      label.columns.map((_, i) => r.values[i] ?? "")
+    ),
     styles: { fontSize: 9, cellPadding: 3 },
     headStyles: { fillColor: [37, 99, 170] },
   });
@@ -31,7 +31,7 @@ export function generateStagePDF(
 }
 
 export function generateFullPDF(doc: DocumentRecord) {
-  const pdf = new jsPDF();
+  const pdf = new jsPDF({ orientation: "landscape" });
 
   pdf.setFontSize(18);
   pdf.text("Laporan Pembelajaran", 14, 20);
@@ -48,7 +48,7 @@ export function generateFullPDF(doc: DocumentRecord) {
 
     if (stageData.rows.length === 0) continue;
 
-    if (startY > 240) {
+    if (startY > 160) {
       pdf.addPage();
       startY = 20;
     }
@@ -58,8 +58,10 @@ export function generateFullPDF(doc: DocumentRecord) {
 
     autoTable(pdf, {
       startY: startY + 5,
-      head: [[label.col1, label.col2, label.col3, label.col4]],
-      body: stageData.rows.map((r) => [r.col1, r.col2, r.col3, r.col4]),
+      head: [label.columns],
+      body: stageData.rows.map((r) =>
+        label.columns.map((_, i) => r.values[i] ?? "")
+      ),
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: [37, 99, 170] },
     });
