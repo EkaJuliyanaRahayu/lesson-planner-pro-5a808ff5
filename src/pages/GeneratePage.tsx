@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Download, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,40 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 
 const emptyStage = (): StageData => ({ rows: [] });
+
+const RPP_TEMPLATE_COMPONENTS = [
+  "Identitas — Sekolah",
+  "Identitas — Nama Guru",
+  "Identitas — Mata Pelajaran",
+  "Identitas — Kelas / Semester",
+  "Identitas — Alokasi Waktu",
+  "Identifikasi — Murid (Pre-test)",
+  "Identifikasi — Materi Pelajaran",
+  "Identifikasi — Dimensi Profil Lulusan (DPL)",
+  "Desain Pembelajaran — Capaian Pembelajaran",
+  "Desain Pembelajaran — Lintas Disiplin Ilmu",
+  "Desain Pembelajaran — Tujuan Pembelajaran",
+  "Desain Pembelajaran — Topik Pembelajaran",
+  "Desain Pembelajaran — Praktik Pedagogis",
+  "Desain Pembelajaran — Kemitraan Pembelajaran",
+  "Desain Pembelajaran — Lingkungan Pembelajaran",
+  "Desain Pembelajaran — Pemanfaatan Digital",
+  "Pengalaman Belajar — Awal",
+  "Pengalaman Belajar — Inti (Memahami)",
+  "Pengalaman Belajar — Inti (Mengaplikasikan)",
+  "Pengalaman Belajar — Inti (Merefleksikan)",
+  "Pengalaman Belajar — Penutup",
+  "Asesmen Pembelajaran — Awal (As Learning)",
+  "Asesmen Pembelajaran — Proses (For Learning)",
+  "Asesmen Pembelajaran — Akhir (Of Learning)",
+];
+
+const buildRppTemplate = (): StageData => ({
+  rows: RPP_TEMPLATE_COMPONENTS.map((c) => ({
+    id: crypto.randomUUID(),
+    values: [c, ""],
+  })),
+});
 
 export default function GeneratePage() {
   const navigate = useNavigate();
@@ -45,6 +79,15 @@ export default function GeneratePage() {
 
   const currentStageKey = STAGES[currentStage];
   const stageLabel = STAGE_LABELS[currentStageKey];
+
+  // Prefill RPP with template the first time user lands on it
+  useEffect(() => {
+    if (!doc) return;
+    if (currentStageKey === "rpp" && doc.rpp.rows.length === 0) {
+      setDoc({ ...doc, rpp: buildRppTemplate() });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStageKey]);
 
   const updateStageData = (rows: any[]) => {
     if (!doc) return;
