@@ -58,7 +58,7 @@ export const STAGE_LABELS: Record<string, StageConfig> = {
   },
   rpp: {
     title: "Rencana Pelaksanaan Pembelajaran (RPP)",
-    columns: ["Bagian", "Komponen", "Deskripsi / Isi"],
+    columns: ["Identifikasi", "Desain Pembelajaran", "Pengalaman Belajar", "Asesmen Pembelajaran"],
   },
 };
 
