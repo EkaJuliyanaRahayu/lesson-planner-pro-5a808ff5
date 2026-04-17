@@ -14,39 +14,54 @@ import { toast } from "sonner";
 
 const emptyStage = (): StageData => ({ rows: [] });
 
-const RPP_TEMPLATE_ROWS: Array<[string, string]> = [
-  ["Identitas", "Sekolah"],
-  ["Identitas", "Nama Guru"],
-  ["Identitas", "Mata Pelajaran"],
-  ["Identitas", "Kelas / Semester"],
-  ["Identitas", "Alokasi Waktu"],
-  ["Identifikasi", "Murid (Pre-test)"],
-  ["Identifikasi", "Materi Pelajaran"],
-  ["Identifikasi", "Dimensi Profil Lulusan (DPL)"],
-  ["Desain Pembelajaran", "Capaian Pembelajaran"],
-  ["Desain Pembelajaran", "Lintas Disiplin Ilmu"],
-  ["Desain Pembelajaran", "Tujuan Pembelajaran"],
-  ["Desain Pembelajaran", "Topik Pembelajaran"],
-  ["Desain Pembelajaran", "Praktik Pedagogis"],
-  ["Desain Pembelajaran", "Kemitraan Pembelajaran"],
-  ["Desain Pembelajaran", "Lingkungan Pembelajaran"],
-  ["Desain Pembelajaran", "Pemanfaatan Digital"],
-  ["Pengalaman Belajar", "Awal"],
-  ["Pengalaman Belajar", "Inti — Memahami"],
-  ["Pengalaman Belajar", "Inti — Mengaplikasikan"],
-  ["Pengalaman Belajar", "Inti — Merefleksikan"],
-  ["Pengalaman Belajar", "Penutup"],
-  ["Asesmen Pembelajaran", "Awal (As Learning)"],
-  ["Asesmen Pembelajaran", "Proses (For Learning)"],
-  ["Asesmen Pembelajaran", "Akhir (Of Learning)"],
+// Setiap kolom (Identifikasi / Desain Pembelajaran / Pengalaman Belajar / Asesmen)
+// punya daftar komponen sendiri. Template membuat baris sebanyak komponen terbanyak,
+// dan mengisi cell pada kolom yang sesuai dengan format "Komponen:\n".
+const RPP_COLUMN_COMPONENTS: string[][] = [
+  // Identifikasi
+  [
+    "Murid (Pre-test)",
+    "Materi Pelajaran",
+    "Dimensi Profil Lulusan (DPL)",
+  ],
+  // Desain Pembelajaran
+  [
+    "Capaian Pembelajaran",
+    "Lintas Disiplin Ilmu",
+    "Tujuan Pembelajaran",
+    "Topik Pembelajaran",
+    "Praktik Pedagogis",
+    "Kemitraan Pembelajaran",
+    "Lingkungan Pembelajaran",
+    "Pemanfaatan Digital",
+  ],
+  // Pengalaman Belajar
+  [
+    "Awal",
+    "Inti — Memahami",
+    "Inti — Mengaplikasikan",
+    "Inti — Merefleksikan",
+    "Penutup",
+  ],
+  // Asesmen Pembelajaran
+  [
+    "Awal (As Learning)",
+    "Proses (For Learning)",
+    "Akhir (Of Learning)",
+  ],
 ];
 
-const buildRppTemplate = (): StageData => ({
-  rows: RPP_TEMPLATE_ROWS.map(([bagian, komponen]) => ({
+const buildRppTemplate = (): StageData => {
+  const maxRows = Math.max(...RPP_COLUMN_COMPONENTS.map((c) => c.length));
+  const rows = Array.from({ length: maxRows }, (_, rowIdx) => ({
     id: crypto.randomUUID(),
-    values: [bagian, komponen, ""],
-  })),
-});
+    values: RPP_COLUMN_COMPONENTS.map((components) => {
+      const comp = components[rowIdx];
+      return comp ? `${comp}:\n` : "";
+    }),
+  }));
+  return { rows };
+};
 
 export default function GeneratePage() {
   const navigate = useNavigate();
