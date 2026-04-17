@@ -172,6 +172,8 @@ export default function GeneratePage() {
             <TableEditor
               col1Label={stageLabel.col1}
               col2Label={stageLabel.col2}
+              col3Label={stageLabel.col3}
+              col4Label={stageLabel.col4}
               rows={doc?.[currentStageKey as keyof Pick<DocumentRecord, "cp" | "tp" | "atp" | "rpp">]?.rows || []}
               onChange={updateStageData}
             />
