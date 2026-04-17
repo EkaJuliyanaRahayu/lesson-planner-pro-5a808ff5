@@ -80,6 +80,15 @@ export default function GeneratePage() {
   const currentStageKey = STAGES[currentStage];
   const stageLabel = STAGE_LABELS[currentStageKey];
 
+  // Prefill RPP with template the first time user lands on it
+  useEffect(() => {
+    if (!doc) return;
+    if (currentStageKey === "rpp" && doc.rpp.rows.length === 0) {
+      setDoc({ ...doc, rpp: buildRppTemplate() });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStageKey]);
+
   const updateStageData = (rows: any[]) => {
     if (!doc) return;
     setDoc({ ...doc, [currentStageKey]: { rows } });
