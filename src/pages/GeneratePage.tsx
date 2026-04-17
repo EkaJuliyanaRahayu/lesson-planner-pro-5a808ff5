@@ -14,50 +14,106 @@ import { toast } from "sonner";
 
 const emptyStage = (): StageData => ({ rows: [] });
 
-// 4 section, masing-masing punya pasangan kolom (Komponen, Deskripsi) — total 8 kolom.
-// Template membuat baris sebanyak section terpanjang dan mengisi nama komponen
-// di kolom Komponen tiap section. Kolom Deskripsi dibiarkan kosong untuk diisi user.
-const RPP_SECTION_COMPONENTS: string[][] = [
-  // Identifikasi
+// 4 section × (Komponen, Deskripsi) = 8 kolom.
+// Tiap entri: [namaKomponen, deskripsiDefault]. Deskripsi default berisi placeholder
+// + contoh kecil agar mudah diedit guru.
+const DPL_CHECKLIST = [
+  "[ ] Beriman & Bertakwa kepada Tuhan YME",
+  "[ ] Berkebinekaan Global",
+  "[ ] Bergotong Royong",
+  "[ ] Mandiri",
+  "[ ] Bernalar Kritis",
+  "[ ] Kreatif",
+  "[ ] Berintegritas",
+  "[ ] Sehat Jasmani & Rohani",
+].join("\n");
+
+const PERTEMUAN_TEMPLATE = (n: number) =>
+  `Pertemuan ke-${n}\n` +
+  `• AWAL: isi di sini… (contoh: salam, doa, apersepsi, penyampaian tujuan)\n` +
+  `• INTI — Memahami: isi di sini… (contoh: peserta didik mengamati video/demonstrasi)\n` +
+  `• INTI — Mengaplikasikan: isi di sini… (contoh: praktik kelompok / studi kasus)\n` +
+  `• INTI — Merefleksikan: isi di sini… (contoh: diskusi hasil, tanya-jawab makna)\n` +
+  `• PENUTUP: isi di sini… (contoh: kesimpulan, refleksi, penugasan)\n` +
+  `\nPrinsip Pembelajaran Mendalam:\n` +
+  `- Berkesadaran: isi di sini…\n` +
+  `- Bermakna: isi di sini…\n` +
+  `- Menggembirakan: isi di sini…`;
+
+const RPP_SECTIONS: { komponen: string; deskripsi: string }[][] = [
+  // 1. Identifikasi
   [
-    "Murid (Pre-test)",
-    "Materi Pelajaran",
-    "Dimensi Profil Lulusan (DPL)",
+    {
+      komponen: "Murid (berdasarkan pre-test)",
+      deskripsi:
+        "Hasil pre-test: isi di sini…\nLink instrumen pre-test: https://…\n(Contoh: 60% murid sudah memahami konsep dasar, 40% perlu penguatan)",
+    },
+    {
+      komponen: "Materi Pelajaran",
+      deskripsi: "isi di sini… (contoh: Sistem Rem Hidrolik Sepeda Motor)",
+    },
+    {
+      komponen: "Dimensi Profil Lulusan (DPL)",
+      deskripsi: `Centang yang relevan:\n${DPL_CHECKLIST}`,
+    },
   ],
-  // Desain Pembelajaran
+  // 2. Desain Pembelajaran
   [
-    "Capaian Pembelajaran",
-    "Lintas Disiplin Ilmu",
-    "Tujuan Pembelajaran",
-    "Topik Pembelajaran",
-    "Praktik Pedagogis",
-    "Kemitraan Pembelajaran",
-    "Lingkungan Pembelajaran",
-    "Pemanfaatan Digital",
+    { komponen: "Capaian Pembelajaran", deskripsi: "isi di sini…" },
+    {
+      komponen: "Lintas Disiplin Ilmu",
+      deskripsi: "isi di sini… (contoh: Fisika - tekanan fluida, Matematika - perhitungan rasio)",
+    },
+    { komponen: "Tujuan Pembelajaran", deskripsi: "isi di sini…" },
+    { komponen: "Topik Pembelajaran", deskripsi: "isi di sini…" },
+    {
+      komponen: "Praktik Pedagogis",
+      deskripsi: "isi di sini… (contoh: Project Based Learning, Demonstrasi)",
+    },
+    {
+      komponen: "Kemitraan Pembelajaran",
+      deskripsi: "isi di sini… (contoh: bengkel mitra, orang tua, DUDI)",
+    },
+    {
+      komponen: "Lingkungan Pembelajaran",
+      deskripsi: "isi di sini… (contoh: ruang praktik, bengkel sekolah)",
+    },
+    {
+      komponen: "Pemanfaatan Digital",
+      deskripsi: "isi di sini… (contoh: video YouTube, simulasi PhET, LMS)",
+    },
   ],
-  // Pengalaman Belajar
+  // 3. Pengalaman Belajar — minimal 3 pertemuan
   [
-    "Awal",
-    "Inti — Memahami",
-    "Inti — Mengaplikasikan",
-    "Inti — Merefleksikan",
-    "Penutup",
+    { komponen: "Pertemuan 1", deskripsi: PERTEMUAN_TEMPLATE(1) },
+    { komponen: "Pertemuan 2", deskripsi: PERTEMUAN_TEMPLATE(2) },
+    { komponen: "Pertemuan 3", deskripsi: PERTEMUAN_TEMPLATE(3) },
   ],
-  // Asesmen Pembelajaran
+  // 4. Asesmen Pembelajaran
   [
-    "Awal (As Learning)",
-    "Proses (For Learning)",
-    "Akhir (Of Learning)",
+    {
+      komponen: "Asesmen Awal (As Learning)",
+      deskripsi: "isi di sini… (contoh: kuis singkat / pre-test diagnostik)",
+    },
+    {
+      komponen: "Asesmen Proses (For Learning)",
+      deskripsi: "isi di sini… (contoh: observasi kerja kelompok, lembar kerja)",
+    },
+    {
+      komponen: "Asesmen Akhir (Of Learning)",
+      deskripsi: "isi di sini… (contoh: tes tulis, presentasi proyek, rubrik unjuk kerja)",
+    },
   ],
 ];
 
 const buildRppTemplate = (): StageData => {
-  const maxRows = Math.max(...RPP_SECTION_COMPONENTS.map((c) => c.length));
+  const maxRows = Math.max(...RPP_SECTIONS.map((s) => s.length));
   const rows = Array.from({ length: maxRows }, (_, rowIdx) => {
     const values: string[] = [];
-    RPP_SECTION_COMPONENTS.forEach((components) => {
-      values.push(components[rowIdx] ?? "");
-      values.push("");
+    RPP_SECTIONS.forEach((section) => {
+      const item = section[rowIdx];
+      values.push(item?.komponen ?? "");
+      values.push(item?.deskripsi ?? "");
     });
     return { id: crypto.randomUUID(), values };
   });
