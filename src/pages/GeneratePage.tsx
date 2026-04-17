@@ -14,10 +14,10 @@ import { toast } from "sonner";
 
 const emptyStage = (): StageData => ({ rows: [] });
 
-// Setiap kolom (Identifikasi / Desain Pembelajaran / Pengalaman Belajar / Asesmen)
-// punya daftar komponen sendiri. Template membuat baris sebanyak komponen terbanyak,
-// dan mengisi cell pada kolom yang sesuai dengan format "Komponen:\n".
-const RPP_COLUMN_COMPONENTS: string[][] = [
+// 4 section, masing-masing punya pasangan kolom (Komponen, Deskripsi) — total 8 kolom.
+// Template membuat baris sebanyak section terpanjang dan mengisi nama komponen
+// di kolom Komponen tiap section. Kolom Deskripsi dibiarkan kosong untuk diisi user.
+const RPP_SECTION_COMPONENTS: string[][] = [
   // Identifikasi
   [
     "Murid (Pre-test)",
@@ -52,14 +52,15 @@ const RPP_COLUMN_COMPONENTS: string[][] = [
 ];
 
 const buildRppTemplate = (): StageData => {
-  const maxRows = Math.max(...RPP_COLUMN_COMPONENTS.map((c) => c.length));
-  const rows = Array.from({ length: maxRows }, (_, rowIdx) => ({
-    id: crypto.randomUUID(),
-    values: RPP_COLUMN_COMPONENTS.map((components) => {
-      const comp = components[rowIdx];
-      return comp ? `${comp}:\n` : "";
-    }),
-  }));
+  const maxRows = Math.max(...RPP_SECTION_COMPONENTS.map((c) => c.length));
+  const rows = Array.from({ length: maxRows }, (_, rowIdx) => {
+    const values: string[] = [];
+    RPP_SECTION_COMPONENTS.forEach((components) => {
+      values.push(components[rowIdx] ?? "");
+      values.push("");
+    });
+    return { id: crypto.randomUUID(), values };
+  });
   return { rows };
 };
 
