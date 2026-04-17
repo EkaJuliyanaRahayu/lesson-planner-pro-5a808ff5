@@ -1,9 +1,6 @@
 export interface TableRow {
   id: string;
-  col1: string;
-  col2: string;
-  col3: string;
-  col4: string;
+  values: string[];
 }
 
 export interface StageData {
@@ -41,11 +38,33 @@ export const MATA_PELAJARAN_OPTIONS = [
   "Informatika",
 ] as const;
 
-export const STAGE_LABELS: Record<string, { title: string; col1: string; col2: string; col3: string; col4: string }> = {
-  cp: { title: "Capaian Pembelajaran (CP)", col1: "Elemen", col2: "Capaian Pembelajaran", col3: "Kompetensi", col4: "Ruang Lingkup/Materi" },
-  tp: { title: "Tujuan Pembelajaran (TP)", col1: "Elemen", col2: "Tujuan Pembelajaran", col3: "Kompetensi", col4: "Ruang Lingkup/Materi" },
-  atp: { title: "Alur Tujuan Pembelajaran (ATP)", col1: "Elemen", col2: "Alur Tujuan Pembelajaran", col3: "Kompetensi", col4: "Ruang Lingkup/Materi" },
-  rpp: { title: "Rencana Pelaksanaan Pembelajaran (RPP)", col1: "Elemen", col2: "Rencana Pelaksanaan Pembelajaran", col3: "Kompetensi", col4: "Ruang Lingkup/Materi" },
+export interface StageConfig {
+  title: string;
+  columns: string[];
+}
+
+export const STAGE_LABELS: Record<string, StageConfig> = {
+  cp: {
+    title: "Capaian Pembelajaran (CP)",
+    columns: ["Elemen", "Capaian Pembelajaran", "Kompetensi", "Ruang Lingkup/Materi"],
+  },
+  tp: {
+    title: "Tujuan Pembelajaran (TP)",
+    columns: ["Elemen", "Capaian Pembelajaran", "Tujuan Pembelajaran"],
+  },
+  atp: {
+    title: "Alur Tujuan Pembelajaran (ATP)",
+    columns: ["Kode", "Tujuan Pembelajaran", "Materi", "Jam Pertemuan", "Tatap Muka", "Dimensi Profil Lulusan"],
+  },
+  rpp: {
+    title: "Rencana Pelaksanaan Pembelajaran (RPP)",
+    columns: ["Elemen", "Rencana Pelaksanaan Pembelajaran", "Kompetensi", "Ruang Lingkup/Materi"],
+  },
 };
 
 export const STAGES = ["cp", "tp", "atp", "rpp"] as const;
+
+export function createEmptyRow(stageKey: string): TableRow {
+  const cols = STAGE_LABELS[stageKey].columns.length;
+  return { id: crypto.randomUUID(), values: Array(cols).fill("") };
+}
