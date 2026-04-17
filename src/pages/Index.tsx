@@ -48,7 +48,7 @@ function StagePreview({ doc, stage }: { doc: DocumentRecord; stage: typeof STAGE
           {data.rows.map((row) => (
             <TableRow key={row.id}>
               {label.columns.map((_, i) => (
-                <TableCell key={i} className="text-xs py-2">{row.values[i] ?? ""}</TableCell>
+                <TableCell key={i} className="text-xs py-2">{row.values?.[i] ?? ""}</TableCell>
               ))}
             </TableRow>
           ))}

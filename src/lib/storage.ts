@@ -4,7 +4,26 @@ const STORAGE_KEY = "pembelajaran-documents";
 
 export function getDocuments(): DocumentRecord[] {
   const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  if (!data) return [];
+  try {
+    const docs: DocumentRecord[] = JSON.parse(data);
+    for (const doc of docs) {
+      for (const stage of ["cp", "tp", "atp", "rpp"] as const) {
+        if (!doc[stage] || !Array.isArray(doc[stage]?.rows)) {
+          doc[stage] = { rows: [] };
+          continue;
+        }
+        doc[stage].rows = doc[stage].rows.map((r: any) => {
+          if (Array.isArray(r.values)) return r;
+          const values = [r.col1 ?? "", r.col2 ?? "", r.col3 ?? "", r.col4 ?? ""];
+          return { id: r.id ?? crypto.randomUUID(), values };
+        });
+      }
+    }
+    return docs;
+  } catch {
+    return [];
+  }
 }
 
 export function saveDocument(doc: DocumentRecord) {
