@@ -14,37 +14,37 @@ import { toast } from "sonner";
 
 const emptyStage = (): StageData => ({ rows: [] });
 
-const RPP_TEMPLATE_COMPONENTS = [
-  "Identitas — Sekolah",
-  "Identitas — Nama Guru",
-  "Identitas — Mata Pelajaran",
-  "Identitas — Kelas / Semester",
-  "Identitas — Alokasi Waktu",
-  "Identifikasi — Murid (Pre-test)",
-  "Identifikasi — Materi Pelajaran",
-  "Identifikasi — Dimensi Profil Lulusan (DPL)",
-  "Desain Pembelajaran — Capaian Pembelajaran",
-  "Desain Pembelajaran — Lintas Disiplin Ilmu",
-  "Desain Pembelajaran — Tujuan Pembelajaran",
-  "Desain Pembelajaran — Topik Pembelajaran",
-  "Desain Pembelajaran — Praktik Pedagogis",
-  "Desain Pembelajaran — Kemitraan Pembelajaran",
-  "Desain Pembelajaran — Lingkungan Pembelajaran",
-  "Desain Pembelajaran — Pemanfaatan Digital",
-  "Pengalaman Belajar — Awal",
-  "Pengalaman Belajar — Inti (Memahami)",
-  "Pengalaman Belajar — Inti (Mengaplikasikan)",
-  "Pengalaman Belajar — Inti (Merefleksikan)",
-  "Pengalaman Belajar — Penutup",
-  "Asesmen Pembelajaran — Awal (As Learning)",
-  "Asesmen Pembelajaran — Proses (For Learning)",
-  "Asesmen Pembelajaran — Akhir (Of Learning)",
+const RPP_TEMPLATE_ROWS: Array<[string, string]> = [
+  ["Identitas", "Sekolah"],
+  ["Identitas", "Nama Guru"],
+  ["Identitas", "Mata Pelajaran"],
+  ["Identitas", "Kelas / Semester"],
+  ["Identitas", "Alokasi Waktu"],
+  ["Identifikasi", "Murid (Pre-test)"],
+  ["Identifikasi", "Materi Pelajaran"],
+  ["Identifikasi", "Dimensi Profil Lulusan (DPL)"],
+  ["Desain Pembelajaran", "Capaian Pembelajaran"],
+  ["Desain Pembelajaran", "Lintas Disiplin Ilmu"],
+  ["Desain Pembelajaran", "Tujuan Pembelajaran"],
+  ["Desain Pembelajaran", "Topik Pembelajaran"],
+  ["Desain Pembelajaran", "Praktik Pedagogis"],
+  ["Desain Pembelajaran", "Kemitraan Pembelajaran"],
+  ["Desain Pembelajaran", "Lingkungan Pembelajaran"],
+  ["Desain Pembelajaran", "Pemanfaatan Digital"],
+  ["Pengalaman Belajar", "Awal"],
+  ["Pengalaman Belajar", "Inti — Memahami"],
+  ["Pengalaman Belajar", "Inti — Mengaplikasikan"],
+  ["Pengalaman Belajar", "Inti — Merefleksikan"],
+  ["Pengalaman Belajar", "Penutup"],
+  ["Asesmen Pembelajaran", "Awal (As Learning)"],
+  ["Asesmen Pembelajaran", "Proses (For Learning)"],
+  ["Asesmen Pembelajaran", "Akhir (Of Learning)"],
 ];
 
 const buildRppTemplate = (): StageData => ({
-  rows: RPP_TEMPLATE_COMPONENTS.map((c) => ({
+  rows: RPP_TEMPLATE_ROWS.map(([bagian, komponen]) => ({
     id: crypto.randomUUID(),
-    values: [c, ""],
+    values: [bagian, komponen, ""],
   })),
 });
 
