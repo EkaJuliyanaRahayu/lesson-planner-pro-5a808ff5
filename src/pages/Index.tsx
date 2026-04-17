@@ -35,19 +35,21 @@ function StagePreview({ doc, stage }: { doc: DocumentRecord; stage: typeof STAGE
   }
 
   return (
-    <div className="border border-border rounded-md overflow-hidden">
+    <div className="border border-border rounded-md overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
-            <TableHead className="w-[35%] text-xs font-semibold">{label.col1}</TableHead>
-            <TableHead className="text-xs font-semibold">{label.col2}</TableHead>
+            {label.columns.map((c, i) => (
+              <TableHead key={i} className="text-xs font-semibold">{c}</TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.rows.map((row) => (
             <TableRow key={row.id}>
-              <TableCell className="text-xs py-2">{row.col1}</TableCell>
-              <TableCell className="text-xs py-2">{row.col2}</TableCell>
+              {label.columns.map((_, i) => (
+                <TableCell key={i} className="text-xs py-2">{row.values[i] ?? ""}</TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>
